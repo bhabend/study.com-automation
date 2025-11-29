@@ -1,29 +1,48 @@
-from app.llm_client import generate_text
-from pathlib import Path
 import os
+from app.llm_client import run_gemini
+from app.utils import load_prompt, log
 
-PROMPTS_DIR = Path("config/prompts")
 
-def load_prompt(name):
-    p = PROMPTS_DIR / name
-    return p.read_text(encoding="utf-8")
+def build_rewrite_payload(parsed):
+    """
+    Build a structured block of page content for the rewrite prompt.
+    """
+    title = parsed.get("title", "")
+    headings = parsed.get("headings", [])
+    text_blocks = parsed.get("text_blocks", [])
+    metadata = parsed.get("metadata", {})
+    links = parsed.get("links", [])
 
-def generate_rewrite(extracted_struct):
-    prompt = load_prompt("rewrite_prompt.txt")
-    # include structured context + text for Gemini
-    payload = prompt + "\n\n" + "PAGE TEXT:\n" + extracted_struct.get("text","")
-    return generate_text(payload, model=os.getenv("GEMINI_MODEL"))
+    parts = []
 
-def generate_salary(degree_name):
-    prompt = load_prompt("salary_prompt.txt") + f"\nDegree: {degree_name}"
-    raw = generate_text(prompt, model=os.getenv("GEMINI_MODEL"))
-    # expect JSON string - attempt to parse
-    import json
-    try:
-        return json.loads(raw)
-    except Exception:
-        return {"salary_value": "", "salary_source": ""}
-    
-def apply_llm_citation(content):
-    prompt = load_prompt("llm_citation_prompt.txt") + "\n\n" + content
-    return generate_text(prompt, model=os.getenv("GEMINI_MODEL"))
+    parts.append(f"# TITLE\n{title}\n")
+    parts.append("## HEADINGS\n" + "\n".join(headings) + "\n")
+    parts.append("## TEXT BLOCKS\n" + "\n\n".join(text_blocks) + "\n")
+    parts.append("## METADATA\n" + str(metadata) + "\n")
+    parts.append("## LINKS\n" + "\n".join(links) + "\n")
+
+    return "\n".join(parts)
+
+
+def generate_rewrite(parsed):
+    """
+    Main rewrite engine for the Study.com automation.
+    Uses the rewrite_page.txt template under /config/prompts.
+    """
+    prompt_template = load_prompt("rewrite_page.txt")
+    if not prompt_template:
+        raise Exception("rewrite_page.txt missing from config/prompts")
+
+    log("Loaded rewrite prompt template.")
+
+    payload_text = build_rewrite_payload(parsed)
+
+    final_prompt = prompt_template.replace("{{PAGE_DATA}}", payload_text)
+
+    log("Sending rewrite request to Gemini...")
+
+    rewritten_text = run_gemini(final_prompt)
+
+    log("Rewrite completed.")
+
+    return rewritten_text
