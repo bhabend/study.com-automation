@@ -1,0 +1,17 @@
+scraper:
+  timeout: 15
+  user_agent: "Mozilla/5.0 (StudyBot)"
+
+llm:
+  provider: "gemini"
+  model: "models/text-bison-001"  # override with GEMINI_MODEL env var if desired
+  temperature: 0.2
+  max_output_tokens: 1024
+
+sheet:
+  input_tab: "Raw Data"
+  output_tab: "Processed Data"
+
+workflow:
+  generate_docs: true
+  diff_compare: true
