@@ -1,0 +1,11 @@
+{
+  "headings": ["GRE Exam Preparation", "Test Format", "Study Resources"],
+  "paragraphs": [
+    "Graduate exam courses cover GRE sections: Verbal, Quantitative, Analytical Writing.",
+    "Test format includes multiple-choice and essay questions.",
+    "Resources include practice tests, flashcards, and video lessons."
+  ],
+  "lists": [
+    ["Section 1: Verbal", "Section 2: Quantitative", "Section 3: Analytical Writing"]
+  ]
+}
