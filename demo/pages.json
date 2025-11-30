@@ -1,0 +1,16 @@
+{
+  "pages": [
+    {
+      "name": "Nursing Certification",
+      "url": "https://nursing.study.com/"
+    },
+    {
+      "name": "Teaching License",
+      "url": "https://teachinglicense.study.com/"
+    },
+    {
+      "name": "GRE / Graduate Exams",
+      "url": "https://graduateexams.study.com/gre/"
+    }
+  ]
+}
